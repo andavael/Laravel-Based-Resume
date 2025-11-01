@@ -5,234 +5,6 @@
   <title>Edit Resume - {{ $nickname }}</title>
   <link rel="stylesheet" href="{{ asset('css/app.css') }}">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    .edit-page {
-      background: url("{{ asset('assets/bg.png') }}") no-repeat center center;
-      background-size: cover;
-      background-attachment: fixed;
-      min-height: 100vh;
-      padding: 100px 20px 40px;
-    }
-    .edit-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      background: rgba(0, 0, 0, 0.85);
-      border-radius: 12px;
-      padding: 40px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-    }
-    .edit-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 30px;
-      padding-bottom: 20px;
-      border-bottom: 2px solid #ff0000;
-    }
-    .edit-header h1 {
-      font-size: 2em;
-      color: #ff0000;
-      margin: 0;
-      font-weight: 700;
-    }
-    .view-public-btn {
-      padding: 12px 24px;
-      background-color: #ff0000;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 25px;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      font-size: 14px;
-    }
-    .view-public-btn:hover {
-      background-color: #fff;
-      color: #ff0000;
-    }
-    .form-group {
-      margin-bottom: 20px;
-    }
-    .form-group label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: #fff;
-      font-size: 14px;
-    }
-    .form-group input,
-    .form-group textarea {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 6px;
-      font-family: 'Poppins', sans-serif;
-      font-size: 14px;
-      box-sizing: border-box;
-      background: #111;
-      color: #fff;
-    }
-    .form-group input::placeholder,
-    .form-group textarea::placeholder {
-      color: #ccc;
-    }
-    .form-group textarea {
-      min-height: 100px;
-      resize: vertical;
-    }
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-    .btn-primary {
-      padding: 15px 40px;
-      background: #ff0000;
-      color: #fff;
-      border: none;
-      border-radius: 25px;
-      cursor: pointer;
-      font-family: 'Poppins', sans-serif;
-      font-weight: 600;
-      font-size: 16px;
-      transition: all 0.3s;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .btn-primary:hover {
-      background: #fff;
-      color: #ff0000;
-    }
-    .btn-add {
-      padding: 10px 20px;
-      background: #ff0000;
-      color: #fff;
-      border: none;
-      border-radius: 25px;
-      cursor: pointer;
-      font-family: 'Poppins', sans-serif;
-      font-weight: 600;
-      font-size: 14px;
-      margin-top: 10px;
-      transition: all 0.3s;
-    }
-    .btn-add:hover {
-      background: #fff;
-      color: #ff0000;
-    }
-    .btn-remove {
-      padding: 6px 16px;
-      background: rgba(255, 0, 0, 0.2);
-      color: #ff0000;
-      border: 1px solid #ff0000;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 600;
-      transition: all 0.3s;
-    }
-    .btn-remove:hover {
-      background: #ff0000;
-      color: #fff;
-    }
-    .success-message {
-      background: rgba(255, 0, 0, 0.2);
-      color: #fff;
-      padding: 12px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      font-weight: 600;
-      text-align: center;
-      border: 1px solid #ff0000;
-    }
-    .section-divider {
-      margin: 40px 0 20px;
-      padding-top: 20px;
-      border-top: 2px solid #444;
-    }
-    .section-divider h2 {
-      color: #ff0000;
-      font-size: 1.5em;
-      margin-bottom: 20px;
-      font-weight: 600;
-      border-bottom: 2px solid #fff;
-      padding-bottom: 6px;
-      display: inline-block;
-    }
-    .note {
-      background: rgba(255, 200, 0, 0.15);
-      padding: 12px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      border-left: 4px solid #ffc107;
-      color: #ffd54f;
-      font-size: 14px;
-    }
-    .repeater-item {
-      background: rgba(255, 255, 255, 0.05);
-      padding: 20px;
-      border-radius: 8px;
-      margin-bottom: 15px;
-      border: 1px solid #444;
-    }
-    .repeater-item-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-    .repeater-item-header strong {
-      color: #fff;
-      font-size: 16px;
-    }
-    .interest-item {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-      align-items: center;
-    }
-    .interest-item input {
-      flex: 1;
-    }
-    .leadership-org {
-      background: rgba(255, 255, 255, 0.05);
-      padding: 20px;
-      border-radius: 8px;
-      margin-bottom: 15px;
-      border: 1px solid #ff0000;
-    }
-    .leadership-org input[type="text"]:first-child {
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
-    .role-item {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 8px;
-      margin-left: 20px;
-      align-items: center;
-    }
-    .role-item input {
-      flex: 1;
-    }
-    .info-text {
-      margin-top: 30px;
-      text-align: center;
-      color: #ccc;
-      font-size: 14px;
-      font-style: italic;
-    }
-    @media (max-width: 768px) {
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-      .edit-header {
-        flex-direction: column;
-        gap: 15px;
-      }
-    }
-  </style>
 </head>
 <body class="edit-page">
 
@@ -262,6 +34,17 @@
       <div class="success-message">{{ session('success') }}</div>
     @endif
 
+    @if ($errors->any())
+      <div class="error-message">
+        <strong>Please fix the following errors:</strong>
+        <ul>
+          @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+          @endforeach
+        </ul>
+      </div>
+    @endif
+
     <form method="POST" action="{{ route('resume.update') }}">
       @csrf
 
@@ -272,31 +55,31 @@
 
       <div class="form-grid">
         <div class="form-group">
-          <label for="name">Full Name *</label>
-          <input type="text" id="name" name="name" value="{{ old('name', $name) }}" required>
+          <label for="name">Full Name * <span class="char-count">(Max: 100 characters)</span></label>
+          <input type="text" id="name" name="name" value="{{ old('name', $name) }}" required maxlength="100">
         </div>
 
         <div class="form-group">
-          <label for="nickname">Nickname *</label>
-          <input type="text" id="nickname" name="nickname" value="{{ old('nickname', $nickname) }}" required>
+          <label for="nickname">Nickname * <span class="char-count">(Max: 50 characters)</span></label>
+          <input type="text" id="nickname" name="nickname" value="{{ old('nickname', $nickname) }}" required maxlength="50">
         </div>
       </div>
 
       <div class="form-grid">
         <div class="form-group">
-          <label for="title">Title/Position *</label>
-          <input type="text" id="title" name="title" value="{{ old('title', $title) }}" required>
+          <label for="title">Title/Position * <span class="char-count">(Max: 100 characters)</span></label>
+          <input type="text" id="title" name="title" value="{{ old('title', $title) }}" required maxlength="100">
         </div>
 
         <div class="form-group">
-          <label for="university">University *</label>
-          <input type="text" id="university" name="university" value="{{ old('university', $university) }}" required>
+          <label for="university">University * <span class="char-count">(Max: 200 characters)</span></label>
+          <input type="text" id="university" name="university" value="{{ old('university', $university) }}" required maxlength="200">
         </div>
       </div>
 
       <div class="form-group">
-        <label for="description">Description *</label>
-        <textarea id="description" name="description" required>{{ old('description', $description) }}</textarea>
+        <label for="description">Description * <span class="char-count">(Max: 1000 characters)</span></label>
+        <textarea id="description" name="description" required maxlength="1000">{{ old('description', $description) }}</textarea>
       </div>
 
       <!-- Contact Information -->
@@ -304,21 +87,62 @@
         <h2>CONTACT INFORMATION</h2>
       </div>
 
-      <div class="form-grid">
-        <div class="form-group">
-          <label for="email">Email *</label>
-          <input type="email" id="email" name="email" value="{{ old('email', $email) }}" required>
-        </div>
-
-        <div class="form-group">
-          <label for="phone">Phone *</label>
-          <input type="text" id="phone" name="phone" value="{{ old('phone', $phone) }}" required>
-        </div>
+      <div class="form-group">
+        <label for="email">Email * <span class="char-count">(Max: 100 characters)</span></label>
+        <input type="email" id="email" name="email" value="{{ old('email', $email) }}" required maxlength="100">
       </div>
 
       <div class="form-group">
-        <label for="address">Address *</label>
-        <input type="text" id="address" name="address" value="{{ old('address', $address) }}" required>
+        <label>Phone Numbers * <span class="char-count">(Max: 20 characters each)</span></label>
+        <div id="phones-container">
+          @foreach($phones as $index => $phone)
+            <div class="phone-item">
+              <input type="text" name="phones[]" value="{{ old('phones.' . $index, $phone) }}" required maxlength="20" placeholder="+63 9XX XXX XXXX">
+              @if($index > 0)
+                <button type="button" class="btn-remove" onclick="removePhone(this)">Remove</button>
+              @endif
+            </div>
+          @endforeach
+        </div>
+        <button type="button" class="btn-add" onclick="addPhone()">+ Add Another Phone</button>
+      </div>
+
+      <div class="form-group">
+        <label>Complete Address *</label>
+        <div class="address-grid">
+          <div class="form-group">
+            <label for="house">House/Building Number * <span class="char-count">(Max: 100)</span></label>
+            <input type="text" id="house" name="address[house]" value="{{ old('address.house', $address['house'] ?? '') }}" required maxlength="100" placeholder="e.g., Purok 7">
+          </div>
+          
+          <div class="form-group">
+            <label for="barangay">Barangay * <span class="char-count">(Max: 100)</span></label>
+            <input type="text" id="barangay" name="address[barangay]" value="{{ old('address.barangay', $address['barangay'] ?? '') }}" required maxlength="100" placeholder="e.g., Bolbok">
+          </div>
+
+          <div class="form-group">
+            <label for="city">City/Municipality * <span class="char-count">(Max: 100)</span></label>
+            <input type="text" id="city" name="address[city]" value="{{ old('address.city', $address['city'] ?? '') }}" required maxlength="100" placeholder="e.g., Batangas City">
+          </div>
+
+          <div class="form-group">
+            <label for="province">Province * <span class="char-count">(Max: 100)</span></label>
+            <input type="text" id="province" name="address[province]" value="{{ old('address.province', $address['province'] ?? '') }}" required maxlength="100" placeholder="e.g., Batangas">
+          </div>
+
+          <div class="form-group">
+            <label for="zip">ZIP Code * <span class="char-count">(Max: 10)</span></label>
+            <input type="text" id="zip" name="address[zip]" value="{{ old('address.zip', $address['zip'] ?? '') }}" required maxlength="10" placeholder="e.g., 4200">
+          </div>
+
+          <div class="form-group">
+            <label for="country">Country * <span class="char-count">(Max: 100)</span></label>
+            <input type="text" id="country" name="address[country]" value="{{ old('address.country', $address['country'] ?? '') }}" required maxlength="100" placeholder="e.g., Philippines">
+          </div>
+        </div>
+        <div class="address-preview">
+          <strong>Address Preview:</strong> <span id="address-display"></span>
+        </div>
       </div>
 
       <!-- Personal Info -->
@@ -328,23 +152,30 @@
 
       <div class="form-grid">
         <div class="form-group">
-          <label for="dob">Date of Birth</label>
-          <input type="text" id="dob" name="personal_info[Date of Birth]" value="{{ old('personal_info.Date of Birth', $personalInfo['Date of Birth'] ?? '') }}">
+          <label for="dob">Date of Birth * <span class="char-count">(YYYY-MM-DD)</span></label>
+          <input type="date" id="dob" name="personal_info[Date of Birth]" value="{{ old('personal_info.Date of Birth', $personalInfo['Date of Birth'] ?? '') }}" required max="{{ date('Y-m-d') }}">
         </div>
 
         <div class="form-group">
-          <label for="pob">Place of Birth</label>
-          <input type="text" id="pob" name="personal_info[Place of Birth]" value="{{ old('personal_info.Place of Birth', $personalInfo['Place of Birth'] ?? '') }}">
+          <label for="pob">Place of Birth * <span class="char-count">(Max: 100)</span></label>
+          <input type="text" id="pob" name="personal_info[Place of Birth]" value="{{ old('personal_info.Place of Birth', $personalInfo['Place of Birth'] ?? '') }}" required maxlength="100">
         </div>
 
         <div class="form-group">
-          <label for="civil">Civil Status</label>
-          <input type="text" id="civil" name="personal_info[Civil Status]" value="{{ old('personal_info.Civil Status', $personalInfo['Civil Status'] ?? '') }}">
+          <label for="civil">Civil Status *</label>
+          <select id="civil" name="personal_info[Civil Status]" required>
+            <option value="" disabled selected style="color: #888;">Select Status</option>
+            <option value="Single" {{ old('personal_info.Civil Status', $personalInfo['Civil Status'] ?? '') == 'Single' ? 'selected' : '' }}>Single</option>
+            <option value="In a relationship" {{ old('personal_info.Civil Status', $personalInfo['Civil Status'] ?? '') == 'In a relationship' ? 'selected' : '' }}>In a relationship</option>
+            <option value="Married" {{ old('personal_info.Civil Status', $personalInfo['Civil Status'] ?? '') == 'Married' ? 'selected' : '' }}>Married</option>
+            <option value="Widowed" {{ old('personal_info.Civil Status', $personalInfo['Civil Status'] ?? '') == 'Widowed' ? 'selected' : '' }}>Widowed</option>
+            <option value="Divorced" {{ old('personal_info.Civil Status', $personalInfo['Civil Status'] ?? '') == 'Divorced' ? 'selected' : '' }}>Divorced</option>
+          </select>
         </div>
 
         <div class="form-group">
-          <label for="citizen">Citizenship</label>
-          <input type="text" id="citizen" name="personal_info[Citizenship]" value="{{ old('personal_info.Citizenship', $personalInfo['Citizenship'] ?? '') }}">
+          <label for="citizen">Citizenship * <span class="char-count">(Max: 50)</span></label>
+          <input type="text" id="citizen" name="personal_info[Citizenship]" value="{{ old('personal_info.Citizenship', $personalInfo['Citizenship'] ?? '') }}" required maxlength="50">
         </div>
       </div>
 
@@ -361,12 +192,12 @@
               <button type="button" class="btn-remove" onclick="removeEducation(this)">Remove</button>
             </div>
             <div class="form-group">
-              <label>School Name</label>
-              <input type="text" name="education[{{ $index }}][0]" value="{{ old('education.' . $index . '.0', $edu[0] ?? '') }}">
+              <label>School Name <span class="char-count">(Max: 200)</span></label>
+              <input type="text" name="education[{{ $index }}][0]" value="{{ old('education.' . $index . '.0', $edu[0] ?? '') }}" maxlength="200">
             </div>
             <div class="form-group">
-              <label>Year Graduated / Details</label>
-              <input type="text" name="education[{{ $index }}][1]" value="{{ old('education.' . $index . '.1', $edu[1] ?? '') }}">
+              <label>Year Graduated / Details <span class="char-count">(Max: 100)</span></label>
+              <input type="text" name="education[{{ $index }}][1]" value="{{ old('education.' . $index . '.1', $edu[1] ?? '') }}" maxlength="100">
             </div>
           </div>
         @endforeach
@@ -381,7 +212,7 @@
       <div id="interests-container">
         @foreach($interests as $index => $interest)
           <div class="interest-item">
-            <input type="text" name="interests[]" value="{{ old('interests.' . $index, $interest) }}">
+            <input type="text" name="interests[]" value="{{ old('interests.' . $index, $interest) }}" maxlength="100">
             <button type="button" class="btn-remove" onclick="removeInterest(this)">Remove</button>
           </div>
         @endforeach
@@ -397,16 +228,16 @@
         @foreach($leadership as $org => $roles)
           <div class="leadership-org">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-              <label style="margin: 0; color: #ff0000; font-weight: 700;">Organization Name</label>
+              <label style="margin: 0; color: #ff0000; font-weight: 700;">Organization Name <span class="char-count">(Max: 200)</span></label>
               <button type="button" class="btn-remove" onclick="removeLeadership(this)">Remove Org</button>
             </div>
-            <input type="text" class="org-name" name="leadership_orgs[]" value="{{ old('leadership_orgs.' . $loop->index, $org) }}">
+            <input type="text" class="org-name" name="leadership_orgs[]" value="{{ old('leadership_orgs.' . $loop->index, $org) }}" maxlength="200">
             
             <div class="roles-container" style="margin-top: 15px;">
-              <label style="color: #fff; font-weight: 600;">Roles:</label>
+              <label style="color: #fff; font-weight: 600;">Roles <span class="char-count">(Max: 200 each)</span>:</label>
               @foreach($roles as $roleIndex => $role)
                 <div class="role-item">
-                  <input type="text" name="leadership_roles_{{ $loop->parent->index }}[]" value="{{ old('leadership_roles_' . $loop->parent->index . '.' . $roleIndex, $role) }}">
+                  <input type="text" name="leadership_roles_{{ $loop->parent->index }}[]" value="{{ old('leadership_roles_' . $loop->parent->index . '.' . $roleIndex, $role) }}" maxlength="200">
                   <button type="button" class="btn-remove" onclick="removeRole(this)">Remove</button>
                 </div>
               @endforeach
@@ -417,34 +248,34 @@
       </div>
       <button type="button" class="btn-add" onclick="addLeadership()">+ Add Organization</button>
 
-      <!-- Awards and Recognition -->
+      <!-- Achievements -->
       <div class="section-divider">
-        <h2>AWARDS AND RECOGNITION</h2>
+        <h2>ACHIEVEMENTS</h2>
       </div>
 
       <div id="awards-container">
         @foreach($awards as $index => $award)
           <div class="repeater-item award-item">
             <div class="repeater-item-header">
-              <strong>Award #{{ $index + 1 }}</strong>
+              <strong>Achievement #{{ $index + 1 }}</strong>
               <button type="button" class="btn-remove" onclick="removeAward(this)">Remove</button>
             </div>
             <div class="form-group">
-              <label>Award Title</label>
-              <input type="text" name="awards[{{ $index }}][0]" value="{{ old('awards.' . $index . '.0', $award[0] ?? '') }}">
+              <label>Achievement Title <span class="char-count">(Max: 200)</span></label>
+              <input type="text" name="awards[{{ $index }}][0]" value="{{ old('awards.' . $index . '.0', $award[0] ?? '') }}" maxlength="200">
             </div>
             <div class="form-group">
-              <label>Details</label>
-              <input type="text" name="awards[{{ $index }}][1]" value="{{ old('awards.' . $index . '.1', $award[1] ?? '') }}">
+              <label>Details <span class="char-count">(Max: 200)</span></label>
+              <input type="text" name="awards[{{ $index }}][1]" value="{{ old('awards.' . $index . '.1', $award[1] ?? '') }}" maxlength="200">
             </div>
             <div class="form-group">
-              <label>Date</label>
-              <input type="text" name="awards[{{ $index }}][2]" value="{{ old('awards.' . $index . '.2', $award[2] ?? '') }}">
+              <label>Date <span class="char-count">(Max: 50)</span></label>
+              <input type="text" name="awards[{{ $index }}][2]" value="{{ old('awards.' . $index . '.2', $award[2] ?? '') }}" maxlength="50">
             </div>
           </div>
         @endforeach
       </div>
-      <button type="button" class="btn-add" onclick="addAward()">+ Add Award</button>
+      <button type="button" class="btn-add" onclick="addAward()">+ Add Achievement</button>
 
       <!-- Projects -->
       <div class="section-divider">
@@ -459,12 +290,12 @@
               <button type="button" class="btn-remove" onclick="removeProject(this)">Remove</button>
             </div>
             <div class="form-group">
-              <label>Project Name</label>
-              <input type="text" name="projects[{{ $index }}][0]" value="{{ old('projects.' . $index . '.0', $project[0] ?? '') }}">
+              <label>Project Name <span class="char-count">(Max: 100)</span></label>
+              <input type="text" name="projects[{{ $index }}][0]" value="{{ old('projects.' . $index . '.0', $project[0] ?? '') }}" maxlength="100">
             </div>
             <div class="form-group">
-              <label>Project URL</label>
-              <input type="url" name="projects[{{ $index }}][1]" value="{{ old('projects.' . $index . '.1', $project[1] ?? '') }}">
+              <label>Project URL <span class="char-count">(Max: 500)</span></label>
+              <input type="url" name="projects[{{ $index }}][1]" value="{{ old('projects.' . $index . '.1', $project[1] ?? '') }}" maxlength="500">
             </div>
           </div>
         @endforeach
@@ -490,6 +321,50 @@
     let awardIndex = {{ count($awards) }};
     let projectIndex = {{ count($projects) }};
 
+    // Address preview
+    function updateAddressPreview() {
+      const house = document.getElementById('house').value;
+      const barangay = document.getElementById('barangay').value;
+      const city = document.getElementById('city').value;
+      const province = document.getElementById('province').value;
+      const zip = document.getElementById('zip').value;
+      const country = document.getElementById('country').value;
+
+      const parts = [house, barangay, city, province, zip, country].filter(p => p.trim() !== '');
+      document.getElementById('address-display').textContent = parts.join(', ') || 'Enter address details above';
+    }
+
+    document.getElementById('house').addEventListener('input', updateAddressPreview);
+    document.getElementById('barangay').addEventListener('input', updateAddressPreview);
+    document.getElementById('city').addEventListener('input', updateAddressPreview);
+    document.getElementById('province').addEventListener('input', updateAddressPreview);
+    document.getElementById('zip').addEventListener('input', updateAddressPreview);
+    document.getElementById('country').addEventListener('input', updateAddressPreview);
+
+    // Initialize address preview
+    updateAddressPreview();
+
+    // Phone functions
+    function addPhone() {
+      const container = document.getElementById('phones-container');
+      const html = `
+        <div class="phone-item">
+          <input type="text" name="phones[]" value="" required maxlength="20" placeholder="+63 9XX XXX XXXX">
+          <button type="button" class="btn-remove" onclick="removePhone(this)">Remove</button>
+        </div>
+      `;
+      container.insertAdjacentHTML('beforeend', html);
+    }
+
+    function removePhone(btn) {
+      const container = document.getElementById('phones-container');
+      if (container.querySelectorAll('.phone-item').length > 1) {
+        btn.closest('.phone-item').remove();
+      } else {
+        alert('You must have at least one phone number.');
+      }
+    }
+
     function addEducation() {
       const container = document.getElementById('education-container');
       const html = `
@@ -499,12 +374,12 @@
             <button type="button" class="btn-remove" onclick="removeEducation(this)">Remove</button>
           </div>
           <div class="form-group">
-            <label>School Name</label>
-            <input type="text" name="education[${educationIndex}][0]" value="">
+            <label>School Name <span class="char-count">(Max: 200)</span></label>
+            <input type="text" name="education[${educationIndex}][0]" value="" maxlength="200">
           </div>
           <div class="form-group">
-            <label>Year Graduated / Details</label>
-            <input type="text" name="education[${educationIndex}][1]" value="">
+            <label>Year Graduated / Details <span class="char-count">(Max: 100)</span></label>
+            <input type="text" name="education[${educationIndex}][1]" value="" maxlength="100">
           </div>
         </div>
       `;
@@ -520,7 +395,7 @@
       const container = document.getElementById('interests-container');
       const html = `
         <div class="interest-item">
-          <input type="text" name="interests[]" value="">
+          <input type="text" name="interests[]" value="" maxlength="100">
           <button type="button" class="btn-remove" onclick="removeInterest(this)">Remove</button>
         </div>
       `;
@@ -536,15 +411,15 @@
       const html = `
         <div class="leadership-org">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <label style="margin: 0; color: #ff0000; font-weight: 700;">Organization Name</label>
+            <label style="margin: 0; color: #ff0000; font-weight: 700;">Organization Name <span class="char-count">(Max: 200)</span></label>
             <button type="button" class="btn-remove" onclick="removeLeadership(this)">Remove Org</button>
           </div>
-          <input type="text" class="org-name" name="leadership_orgs[]" value="">
+          <input type="text" class="org-name" name="leadership_orgs[]" value="" maxlength="200">
           
           <div class="roles-container" style="margin-top: 15px;">
-            <label style="color: #fff; font-weight: 600;">Roles:</label>
+            <label style="color: #fff; font-weight: 600;">Roles <span class="char-count">(Max: 200 each)</span>:</label>
             <div class="role-item">
-              <input type="text" name="leadership_roles_${leadershipIndex}[]" value="">
+              <input type="text" name="leadership_roles_${leadershipIndex}[]" value="" maxlength="200">
               <button type="button" class="btn-remove" onclick="removeRole(this)">Remove</button>
             </div>
             <button type="button" class="btn-add" onclick="addRole(this)" style="margin-left: 20px;">+ Add Role</button>
@@ -566,7 +441,7 @@
       
       const html = `
         <div class="role-item">
-          <input type="text" name="leadership_roles_${orgIndex}[]" value="">
+          <input type="text" name="leadership_roles_${orgIndex}[]" value="" maxlength="200">
           <button type="button" class="btn-remove" onclick="removeRole(this)">Remove</button>
         </div>
       `;
@@ -582,20 +457,20 @@
       const html = `
         <div class="repeater-item award-item">
           <div class="repeater-item-header">
-            <strong>Award #${awardIndex + 1}</strong>
+            <strong>Achievement #${awardIndex + 1}</strong>
             <button type="button" class="btn-remove" onclick="removeAward(this)">Remove</button>
           </div>
           <div class="form-group">
-            <label>Award Title</label>
-            <input type="text" name="awards[${awardIndex}][0]" value="">
+            <label>Achievement Title <span class="char-count">(Max: 200)</span></label>
+            <input type="text" name="awards[${awardIndex}][0]" value="" maxlength="200">
           </div>
           <div class="form-group">
-            <label>Details</label>
-            <input type="text" name="awards[${awardIndex}][1]" value="">
+            <label>Details <span class="char-count">(Max: 200)</span></label>
+            <input type="text" name="awards[${awardIndex}][1]" value="" maxlength="200">
           </div>
           <div class="form-group">
-            <label>Date</label>
-            <input type="text" name="awards[${awardIndex}][2]" value="">
+            <label>Date <span class="char-count">(Max: 50)</span></label>
+            <input type="text" name="awards[${awardIndex}][2]" value="" maxlength="50">
           </div>
         </div>
       `;
@@ -616,12 +491,12 @@
             <button type="button" class="btn-remove" onclick="removeProject(this)">Remove</button>
           </div>
           <div class="form-group">
-            <label>Project Name</label>
-            <input type="text" name="projects[${projectIndex}][0]" value="">
+            <label>Project Name <span class="char-count">(Max: 100)</span></label>
+            <input type="text" name="projects[${projectIndex}][0]" value="" maxlength="100">
           </div>
           <div class="form-group">
-            <label>Project URL</label>
-            <input type="url" name="projects[${projectIndex}][1]" value="">
+            <label>Project URL <span class="char-count">(Max: 500)</span></label>
+            <input type="url" name="projects[${projectIndex}][1]" value="" maxlength="500">
           </div>
         </div>
       `;

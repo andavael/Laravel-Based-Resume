@@ -26,13 +26,26 @@ class ResumeController extends Controller
                 'awards' => json_decode($resume->awards, true) ?? [],
                 'projects' => json_decode($resume->projects, true) ?? [],
                 'email' => $resume->email,
-                'phone' => $resume->phone,
-                'address' => $resume->address,
+                'phones' => json_decode($resume->phones, true) ?? [$resume->phone],
+                'address' => json_decode($resume->address, true) ?? $this->parseAddress($resume->address),
             ];
         }
 
         // Default data if no database record exists
         return $this->getDefaultResumeData();
+    }
+
+    private function parseAddress($addressString)
+    {
+        // Simple parsing - you may need to adjust based on your data
+        return [
+            'country' => 'Philippines',
+            'province' => '',
+            'city' => '',
+            'barangay' => '',
+            'zip' => '',
+            'house' => $addressString
+        ];
     }
 
     private function getDefaultResumeData()
@@ -44,7 +57,7 @@ class ResumeController extends Controller
             'university' => "Batangas State University – TNEU, Alangilan Campus",
             'description' => "BS in Computer Science student skilled in web development, database management, programming, and networking. Active student leader with proven leadership experience at Batangas State University – TNEU, Alangilan Campus.",
             'personalInfo' => [
-                "Date of Birth" => "March 5, 2005",
+                "Date of Birth" => "2005-03-05",
                 "Place of Birth" => "Batangas City",
                 "Civil Status" => "Single",
                 "Citizenship" => "Filipino"
@@ -83,13 +96,19 @@ class ResumeController extends Controller
                 ["Coralis", "https://github.com/andavael"]
             ],
             'email' => "andavael05@gmail.com",
-            'phone' => "+63 9672954793",
-            'address' => "Purok 7, Bolbok, Batangas City, Philippines"
+            'phones' => ["+63 9672954793"],
+            'address' => [
+                'house' => 'Purok 7',
+                'barangay' => 'Bolbok',
+                'city' => 'Batangas City',
+                'province' => 'Batangas',
+                'zip' => '4200',
+                'country' => 'Philippines'
+            ]
         ];
     }
 
     // Public view (default landing page)
-    // Update this method in ResumeController.php
     public function showPublic(Request $request)
     {
         // Get id from query parameter, default to 1
@@ -99,6 +118,9 @@ class ResumeController extends Controller
         $resume = DB::table('resume')->where('id', $id)->first();
 
         if ($resume) {
+            $address = json_decode($resume->address, true);
+            $addressString = $this->formatAddressString($address);
+            
             $data = [
                 'name' => $resume->full_name,
                 'nickname' => $resume->nickname,
@@ -112,15 +134,36 @@ class ResumeController extends Controller
                 'awards' => json_decode($resume->awards, true) ?? [],
                 'projects' => json_decode($resume->projects, true) ?? [],
                 'email' => $resume->email,
-                'phone' => $resume->phone,
-                'address' => $resume->address,
+                'phone' => implode(', ', json_decode($resume->phones, true) ?? []),
+                'address' => $addressString,
             ];
         } else {
             // Use default data if no resume found
-            $data = $this->getDefaultResumeData();
+            $defaultData = $this->getDefaultResumeData();
+            $defaultData['phone'] = implode(', ', $defaultData['phones']);
+            $defaultData['address'] = $this->formatAddressString($defaultData['address']);
+            $data = $defaultData;
         }
         
         return view('resume.public', $data);
+    }
+
+    private function formatAddressString($address)
+    {
+        if (is_string($address)) {
+            return $address;
+        }
+        
+        $parts = array_filter([
+            $address['house'] ?? '',
+            $address['barangay'] ?? '',
+            $address['city'] ?? '',
+            $address['province'] ?? '',
+            $address['zip'] ?? '',
+            $address['country'] ?? ''
+        ]);
+        
+        return implode(', ', $parts);
     }
 
     // Edit view (for authenticated users)
@@ -131,26 +174,43 @@ class ResumeController extends Controller
     }
 
     // Update resume (for authenticated users)
-    // Replace the entire update method in ResumeController.php
     public function update(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'nickname' => 'required|string|max:255',
-            'title' => 'required|string|max:255',
-            'university' => 'required|string|max:255',
-            'description' => 'required|string',
-            'email' => 'required|email',
-            'phone' => 'required|string',
-            'address' => 'required|string',
+            'name' => 'required|string|max:100',
+            'nickname' => 'required|string|max:50',
+            'title' => 'required|string|max:100',
+            'university' => 'required|string|max:200',
+            'description' => 'required|string|max:1000',
+            'email' => 'required|email|max:100',
+            'phones.*' => 'required|string|max:20',
+            'address.house' => 'required|string|max:100',
+            'address.barangay' => 'required|string|max:100',
+            'address.city' => 'required|string|max:100',
+            'address.province' => 'required|string|max:100',
+            'address.zip' => 'required|string|max:10',
+            'address.country' => 'required|string|max:100',
+            'personal_info.Date of Birth' => 'required|date',
+            'personal_info.Place of Birth' => 'required|string|max:100',
+            'personal_info.Civil Status' => 'required|string|max:50',
+            'personal_info.Citizenship' => 'required|string|max:50',
         ]);
+
+        // Process phones - filter out empty values
+        $phones = array_filter($request->phones ?? [], function($phone) {
+            return !empty(trim($phone));
+        });
+        $phones = array_values($phones);
 
         // Process education
         $education = [];
         if ($request->has('education')) {
             foreach ($request->education as $edu) {
                 if (!empty($edu[0]) || !empty($edu[1])) {
-                    $education[] = [$edu[0] ?? '', $edu[1] ?? ''];
+                    $education[] = [
+                        substr($edu[0] ?? '', 0, 200),
+                        substr($edu[1] ?? '', 0, 100)
+                    ];
                 }
             }
         }
@@ -159,23 +219,27 @@ class ResumeController extends Controller
         $interests = array_filter($request->interests ?? [], function($item) {
             return !empty(trim($item));
         });
+        $interests = array_map(function($item) {
+            return substr(trim($item), 0, 100);
+        }, $interests);
 
-        // Process leadership - FIXED VERSION
+        // Process leadership
         $leadership = [];
         if ($request->has('leadership_orgs')) {
             foreach ($request->leadership_orgs as $index => $org) {
                 $org = trim($org);
-                if (!empty($org)) {
-                    // Get roles for this specific organization using the index
+                if (!empty($org) && strlen($org) <= 200) {
                     $rolesKey = 'leadership_roles_' . $index;
                     $roles = $request->input($rolesKey, []);
                     
-                    // Filter out empty roles
                     $roles = array_filter($roles, function($role) {
                         return !empty(trim($role));
                     });
                     
-                    // Only add if there's at least one role
+                    $roles = array_map(function($role) {
+                        return substr(trim($role), 0, 200);
+                    }, $roles);
+                    
                     if (!empty($roles)) {
                         $leadership[$org] = array_values($roles);
                     }
@@ -189,9 +253,9 @@ class ResumeController extends Controller
             foreach ($request->awards as $award) {
                 if (!empty($award[0])) {
                     $awards[] = [
-                        $award[0] ?? '',
-                        $award[1] ?? '',
-                        $award[2] ?? ''
+                        substr($award[0] ?? '', 0, 200),
+                        substr($award[1] ?? '', 0, 200),
+                        substr($award[2] ?? '', 0, 50)
                     ];
                 }
             }
@@ -202,7 +266,10 @@ class ResumeController extends Controller
         if ($request->has('projects')) {
             foreach ($request->projects as $project) {
                 if (!empty($project[0]) || !empty($project[1])) {
-                    $projects[] = [$project[0] ?? '', $project[1] ?? ''];
+                    $projects[] = [
+                        substr($project[0] ?? '', 0, 100),
+                        substr($project[1] ?? '', 0, 500)
+                    ];
                 }
             }
         }
@@ -221,22 +288,20 @@ class ResumeController extends Controller
             'awards' => json_encode($awards),
             'projects' => json_encode($projects),
             'email' => $request->email,
-            'phone' => $request->phone,
-            'address' => $request->address,
+            'phones' => json_encode($phones),
+            'address' => json_encode($request->address),
         ];
 
         // Check if resume exists
         $resumeExists = DB::table('resume')->where('id', 1)->exists();
 
         if ($resumeExists) {
-            // Update existing resume
             DB::table('resume')->where('id', 1)->update($resumeData);
         } else {
-            // Insert new resume with id = 1
             $resumeData['id'] = 1;
             DB::table('resume')->insert($resumeData);
         }
 
-        return redirect()->route('resume.edit')->with('success', 'Resume updated successfully! Leadership and all other sections have been saved.');
+        return redirect()->route('resume.edit')->with('success', 'Resume updated successfully! All changes have been saved.');
     }
 }
