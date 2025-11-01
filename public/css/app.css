@@ -191,7 +191,6 @@ body {
 
 /* ===== Buttons ===== */
 .btn,
-.download-btn,
 .project-btn {
   display: inline-block;
   text-align: center;
@@ -211,19 +210,7 @@ body {
   background: #ffffff;
   color: #ff0000;
 }
-.download-btn {
-  display: block;
-  margin: 20px 0 30px;
-  padding: 15px;
-  border: none;
-  color: #ff0000;
-  background: #fff;
-  font-size: 18px;
-}
-.download-btn:hover {
-  background: #ff0000;
-  color: #fff;
-}
+
 .project-btn {
   width: 100%;
   background: #444;
@@ -686,14 +673,14 @@ input::placeholder {
 }
 
 .success-message {
-  background: rgba(255, 0, 0, 0.2);
+  background: rgba(123, 255, 0, 0.351);
   color: #fff;
   padding: 12px;
   border-radius: 8px;
   margin-bottom: 20px;
   font-weight: 600;
   text-align: center;
-  border: 1px solid #ff0000;
+  border: 1px solid #11ff00;
 }
 
 .error-message {
@@ -890,3 +877,22 @@ input::placeholder {
     padding: 20px;
   }
 }
+
+.logout-btn {
+  padding: 12px 24px;
+  background-color: #ff0000;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 25px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 14px;
+}
+
+.logout-btn:hover {
+  background-color: #fff;
+  color: #ff0000;
+}
+

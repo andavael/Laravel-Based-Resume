@@ -2,32 +2,41 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Edit Resume - {{ $nickname }}</title>
+  <title>Edit Resume - {{ $nickname ?: 'Your Resume' }}</title>
   <link rel="stylesheet" href="{{ asset('css/app.css') }}">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="edit-page">
 
   <!-- Header -->
-  <section class='header'>
-    <div class='name-bubble'>
-      <img src='{{ asset('assets/logo.png') }}' alt='Logo' class='logo-icon'>
-      {{ $nickname }} Vael
-    </div>
-    
-    <div class='auth-buttons'>
-      <a href="{{ route('resume.public', ['id' => 1]) }}" class='auth-btn login-btn' target="_blank">View Public</a>
-    </div>
-  </section>
+<section class='header'>
+  <div class='name-bubble'>
+    <img src='{{ asset('assets/logo.png') }}' alt='Logo' class='logo-icon'>
+    @auth
+      <span>Welcome, {{ Auth::user()->username }}!</span>
+    @else
+      <span>Welcome, Guest!</span>
+    @endauth
+  </div>
+  
+  <div class='auth-buttons'>
+    <a href="{{ route('resume.public', ['id' => Auth::id()]) }}" 
+       class='auth-btn login-btn' target="_blank">View Public</a>
+
+    <form method="POST" action="{{ route('logout') }}" style="display: inline; margin-left: 10px;">
+      @csrf
+      <button type="submit" class="logout-btn">Logout</button>
+    </form>
+  </div>
+</section>
 
   <div class="edit-container">
     <div class="edit-header">
-      <h1>📝 EDIT RESUME</h1>
-      <a href="{{ route('resume.public', ['id' => 1]) }}" class="view-public-btn" target="_blank">👁️ View Public Resume</a>
+      <h1>📝 EDIT YOUR RESUME</h1>
     </div>
 
     <div class="note">
-      <strong>Note:</strong> You are editing the shared resume (ID: 1). All logged-in users edit the same resume, and changes will be visible on the public page.
+      <strong>Note:</strong> You are editing your personal resume (User ID: {{ $userId }}). Only you can edit your resume. After saving, your resume will be displayed as the default public resume (most recently updated).
     </div>
 
     @if (session('success'))
@@ -95,14 +104,18 @@
       <div class="form-group">
         <label>Phone Numbers * <span class="char-count">(Max: 20 characters each)</span></label>
         <div id="phones-container">
-          @foreach($phones as $index => $phone)
+          @forelse($phones as $index => $phone)
             <div class="phone-item">
               <input type="text" name="phones[]" value="{{ old('phones.' . $index, $phone) }}" required maxlength="20" placeholder="+63 9XX XXX XXXX">
               @if($index > 0)
                 <button type="button" class="btn-remove" onclick="removePhone(this)">Remove</button>
               @endif
             </div>
-          @endforeach
+          @empty
+            <div class="phone-item">
+              <input type="text" name="phones[]" value="" required maxlength="20" placeholder="+63 9XX XXX XXXX">
+            </div>
+          @endforelse
         </div>
         <button type="button" class="btn-add" onclick="addPhone()">+ Add Another Phone</button>
       </div>
@@ -164,7 +177,7 @@
         <div class="form-group">
           <label for="civil">Civil Status *</label>
           <select id="civil" name="personal_info[Civil Status]" required>
-            <option value="" disabled selected style="color: #888;">Select Status</option>
+            <option value="" disabled {{ empty(old('personal_info.Civil Status', $personalInfo['Civil Status'] ?? '')) ? 'selected' : '' }} style="color: #888;">Select Status</option>
             <option value="Single" {{ old('personal_info.Civil Status', $personalInfo['Civil Status'] ?? '') == 'Single' ? 'selected' : '' }}>Single</option>
             <option value="In a relationship" {{ old('personal_info.Civil Status', $personalInfo['Civil Status'] ?? '') == 'In a relationship' ? 'selected' : '' }}>In a relationship</option>
             <option value="Married" {{ old('personal_info.Civil Status', $personalInfo['Civil Status'] ?? '') == 'Married' ? 'selected' : '' }}>Married</option>
@@ -185,7 +198,7 @@
       </div>
 
       <div id="education-container">
-        @foreach($education as $index => $edu)
+        @forelse($education as $index => $edu)
           <div class="repeater-item education-item">
             <div class="repeater-item-header">
               <strong>Education #{{ $index + 1 }}</strong>
@@ -200,7 +213,22 @@
               <input type="text" name="education[{{ $index }}][1]" value="{{ old('education.' . $index . '.1', $edu[1] ?? '') }}" maxlength="100">
             </div>
           </div>
-        @endforeach
+        @empty
+          <div class="repeater-item education-item">
+            <div class="repeater-item-header">
+              <strong>Education #1</strong>
+              <button type="button" class="btn-remove" onclick="removeEducation(this)">Remove</button>
+            </div>
+            <div class="form-group">
+              <label>School Name <span class="char-count">(Max: 200)</span></label>
+              <input type="text" name="education[0][0]" value="" maxlength="200">
+            </div>
+            <div class="form-group">
+              <label>Year Graduated / Details <span class="char-count">(Max: 100)</span></label>
+              <input type="text" name="education[0][1]" value="" maxlength="100">
+            </div>
+          </div>
+        @endforelse
       </div>
       <button type="button" class="btn-add" onclick="addEducation()">+ Add Education</button>
 
@@ -210,12 +238,17 @@
       </div>
 
       <div id="interests-container">
-        @foreach($interests as $index => $interest)
+        @forelse($interests as $index => $interest)
           <div class="interest-item">
             <input type="text" name="interests[]" value="{{ old('interests.' . $index, $interest) }}" maxlength="100">
             <button type="button" class="btn-remove" onclick="removeInterest(this)">Remove</button>
           </div>
-        @endforeach
+        @empty
+          <div class="interest-item">
+            <input type="text" name="interests[]" value="" maxlength="100">
+            <button type="button" class="btn-remove" onclick="removeInterest(this)">Remove</button>
+          </div>
+        @endforelse
       </div>
       <button type="button" class="btn-add" onclick="addInterest()">+ Add Interest</button>
 
@@ -225,7 +258,7 @@
       </div>
 
       <div id="leadership-container">
-        @foreach($leadership as $org => $roles)
+        @forelse($leadership as $org => $roles)
           <div class="leadership-org">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
               <label style="margin: 0; color: #ff0000; font-weight: 700;">Organization Name <span class="char-count">(Max: 200)</span></label>
@@ -244,7 +277,9 @@
               <button type="button" class="btn-add" onclick="addRole(this)" style="margin-left: 20px;">+ Add Role</button>
             </div>
           </div>
-        @endforeach
+        @empty
+          <!-- Empty state -->
+        @endforelse
       </div>
       <button type="button" class="btn-add" onclick="addLeadership()">+ Add Organization</button>
 
@@ -254,7 +289,7 @@
       </div>
 
       <div id="awards-container">
-        @foreach($awards as $index => $award)
+        @forelse($awards as $index => $award)
           <div class="repeater-item award-item">
             <div class="repeater-item-header">
               <strong>Achievement #{{ $index + 1 }}</strong>
@@ -273,7 +308,26 @@
               <input type="text" name="awards[{{ $index }}][2]" value="{{ old('awards.' . $index . '.2', $award[2] ?? '') }}" maxlength="50">
             </div>
           </div>
-        @endforeach
+        @empty
+          <div class="repeater-item award-item">
+            <div class="repeater-item-header">
+              <strong>Achievement #1</strong>
+              <button type="button" class="btn-remove" onclick="removeAward(this)">Remove</button>
+            </div>
+            <div class="form-group">
+              <label>Achievement Title <span class="char-count">(Max: 200)</span></label>
+              <input type="text" name="awards[0][0]" value="" maxlength="200">
+            </div>
+            <div class="form-group">
+              <label>Details <span class="char-count">(Max: 200)</span></label>
+              <input type="text" name="awards[0][1]" value="" maxlength="200">
+            </div>
+            <div class="form-group">
+              <label>Date <span class="char-count">(Max: 50)</span></label>
+              <input type="text" name="awards[0][2]" value="" maxlength="50">
+            </div>
+          </div>
+        @endforelse
       </div>
       <button type="button" class="btn-add" onclick="addAward()">+ Add Achievement</button>
 
@@ -283,7 +337,7 @@
       </div>
 
       <div id="projects-container">
-        @foreach($projects as $index => $project)
+        @forelse($projects as $index => $project)
           <div class="repeater-item project-item">
             <div class="repeater-item-header">
               <strong>Project #{{ $index + 1 }}</strong>
@@ -298,7 +352,22 @@
               <input type="url" name="projects[{{ $index }}][1]" value="{{ old('projects.' . $index . '.1', $project[1] ?? '') }}" maxlength="500">
             </div>
           </div>
-        @endforeach
+        @empty
+          <div class="repeater-item project-item">
+            <div class="repeater-item-header">
+              <strong>Project #1</strong>
+              <button type="button" class="btn-remove" onclick="removeProject(this)">Remove</button>
+            </div>
+            <div class="form-group">
+              <label>Project Name <span class="char-count">(Max: 100)</span></label>
+              <input type="text" name="projects[0][0]" value="" maxlength="100">
+            </div>
+            <div class="form-group">
+              <label>Project URL <span class="char-count">(Max: 500)</span></label>
+              <input type="url" name="projects[0][1]" value="" maxlength="500">
+            </div>
+          </div>
+        @endforelse
       </div>
       <button type="button" class="btn-add" onclick="addProject()">+ Add Project</button>
 
@@ -310,16 +379,16 @@
       </div>
 
       <div class="info-text">
-        <p>All changes will be reflected on the public resume page immediately after saving.</p>
+        <p>All changes will be reflected on your public resume page immediately after saving.</p>
       </div>
     </form>
   </div>
 
   <script>
-    let educationIndex = {{ count($education) }};
+    let educationIndex = {{ count($education) > 0 ? count($education) : 1 }};
     let leadershipIndex = {{ count($leadership) }};
-    let awardIndex = {{ count($awards) }};
-    let projectIndex = {{ count($projects) }};
+    let awardIndex = {{ count($awards) > 0 ? count($awards) : 1 }};
+    let projectIndex = {{ count($projects) > 0 ? count($projects) : 1 }};
 
     // Address preview
     function updateAddressPreview() {

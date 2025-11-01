@@ -23,7 +23,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->route('resume.edit'); // Changed to edit page
+            return redirect()->route('resume.edit');
         }
 
         return back()->withErrors([
@@ -56,5 +56,21 @@ class AuthController extends Controller
         ]);
 
         return redirect()->route('login')->with('success', 'Registration successful! Please log in.');
+    }
+
+    // Handle logout
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        // Get the most recently updated resume
+        $latest = Resume::latest('updated_at')->first();
+
+        // Redirect to that resume, or fallback to id=1
+        $id = $latest ? $latest->id : 1;
+
+        return redirect()->route('resume.public', ['id' => $id]);
     }
 }

@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class ResumeController extends Controller
 {
-    // Get resume data from database or defaults
-    private function getResumeData()
+    // Get resume data from database or blank template
+    private function getResumeData($userId)
     {
-        $resume = DB::table('resume')->first();
+        $resume = DB::table('resume')->where('user_id', $userId)->first();
 
         if ($resume) {
             return [
@@ -26,96 +27,67 @@ class ResumeController extends Controller
                 'awards' => json_decode($resume->awards, true) ?? [],
                 'projects' => json_decode($resume->projects, true) ?? [],
                 'email' => $resume->email,
-                'phones' => json_decode($resume->phones, true) ?? [$resume->phone],
-                'address' => json_decode($resume->address, true) ?? $this->parseAddress($resume->address),
+                'phones' => json_decode($resume->phones, true) ?? [],
+                'address' => json_decode($resume->address, true) ?? [],
             ];
         }
 
-        // Default data if no database record exists
-        return $this->getDefaultResumeData();
+        // Return blank template if no resume exists
+        return $this->getBlankTemplate();
     }
 
-    private function parseAddress($addressString)
-    {
-        // Simple parsing - you may need to adjust based on your data
-        return [
-            'country' => 'Philippines',
-            'province' => '',
-            'city' => '',
-            'barangay' => '',
-            'zip' => '',
-            'house' => $addressString
-        ];
-    }
-
-    private function getDefaultResumeData()
+    private function getBlankTemplate()
     {
         return [
-            'name' => "Anthonina Dhapniella C. Vael",
-            'nickname' => "Anda",
-            'title' => "BSCS Student",
-            'university' => "Batangas State University – TNEU, Alangilan Campus",
-            'description' => "BS in Computer Science student skilled in web development, database management, programming, and networking. Active student leader with proven leadership experience at Batangas State University – TNEU, Alangilan Campus.",
+            'name' => "",
+            'nickname' => "",
+            'title' => "",
+            'university' => "",
+            'description' => "",
             'personalInfo' => [
-                "Date of Birth" => "2005-03-05",
-                "Place of Birth" => "Batangas City",
-                "Civil Status" => "Single",
-                "Citizenship" => "Filipino"
+                "Date of Birth" => "",
+                "Place of Birth" => "",
+                "Civil Status" => "",
+                "Citizenship" => ""
             ],
             'education' => [
-                ["CENTEX Batangas", "Year Graduated: 2017"],
-                ["Batangas State University - Integrated School Department", "Year Graduated: 2021"],
-                ["Batangas State University - Integrated School Department", "Expected Year of Graduation: 2023"]
+                ["", ""]
             ],
-            'leadership' => [
-                "College of Informatics and Computing Sciences Student Council" => [
-                    "Committee Member for Technical Affairs | A.Y. 2022 – 2025",
-                    "Co-Head for Live Production and Streaming | A.Y. 2025 – 2026"
-                ],
-                "Association of Committed Computer Science Students" => [
-                    "Organization Member | A.Y. 2023 – 2024",
-                    "Associate Director for Technical and Publicity | A.Y. 2024 – 2025",
-                    "Director for Technical Affairs | A.Y. 2025 – 2026"
-                ],
-                "Junior Philippine Computer Society" => [
-                    "Member | A.Y. 2023 – Present"
-                ]
-            ],
-            'interests' => ["Programming", "UX and UI Design", "Digital Media Production", "Live Production and Streaming"],
+            'leadership' => [],
+            'interests' => [""],
             'awards' => [
-                ["CICS Dean's Lister", "1st to 2nd Year, 1st Semester – 2nd Semester", "2023 – 2025"],
-                ["Mastering Programming and Data Analysis | Committee member", "", "October 1, 2024"],
-                ["Technofusion 2025 Parke Pasiklaban, Cultural Competitions | Co-Head", "", "April 2025"],
-                ["Technofusion 2025 Live Committee | Co-Head", "", "April 2025"],
-                ["Technofusion 2025 Battle of the Bands Competition | Co-Head", "", "April 2025"],
-                ["Technofusion 2025 InterCICSkwela | Committee Member", "", "April 2025"]
+                ["", "", ""]
             ],
             'projects' => [
-                ["FitSpace", "https://github.com/andavael/FitSpace"],
-                ["Baraco", "https://github.com/ailadonayre/BARACO-Batangas-Railway-Corporation-"],
-                ["Coralis", "https://github.com/andavael"]
+                ["", ""]
             ],
-            'email' => "andavael05@gmail.com",
-            'phones' => ["+63 9672954793"],
+            'email' => "",
+            'phones' => [""],
             'address' => [
-                'house' => 'Purok 7',
-                'barangay' => 'Bolbok',
-                'city' => 'Batangas City',
-                'province' => 'Batangas',
-                'zip' => '4200',
-                'country' => 'Philippines'
+                'house' => '',
+                'barangay' => '',
+                'city' => '',
+                'province' => '',
+                'zip' => '',
+                'country' => ''
             ]
         ];
     }
 
-    // Public view (default landing page)
+    // Public view - shows the most recently edited resume by default
     public function showPublic(Request $request)
     {
-        // Get id from query parameter, default to 1
-        $id = $request->query('id', 1);
+        // Get id from query parameter, or fetch the most recently updated resume
+        $id = $request->query('id');
         
-        // Fetch resume by id
-        $resume = DB::table('resume')->where('id', $id)->first();
+        if ($id) {
+            $resume = DB::table('resume')->where('id', $id)->first();
+        } else {
+            // Get the most recently updated resume
+            $resume = DB::table('resume')
+                ->orderBy('updated_at', 'desc')
+                ->first();
+        }
 
         if ($resume) {
             $address = json_decode($resume->address, true);
@@ -136,13 +108,27 @@ class ResumeController extends Controller
                 'email' => $resume->email,
                 'phone' => implode(', ', json_decode($resume->phones, true) ?? []),
                 'address' => $addressString,
+                'resumeId' => $resume->id,
             ];
         } else {
-            // Use default data if no resume found
-            $defaultData = $this->getDefaultResumeData();
-            $defaultData['phone'] = implode(', ', $defaultData['phones']);
-            $defaultData['address'] = $this->formatAddressString($defaultData['address']);
-            $data = $defaultData;
+            // No resumes exist yet - show placeholder
+            $data = [
+                'name' => 'No Resume Available',
+                'nickname' => 'N/A',
+                'title' => 'No resumes have been created yet',
+                'university' => '',
+                'description' => 'Please login and create your resume.',
+                'personalInfo' => [],
+                'education' => [],
+                'leadership' => [],
+                'interests' => [],
+                'awards' => [],
+                'projects' => [],
+                'email' => '',
+                'phone' => '',
+                'address' => '',
+                'resumeId' => null,
+            ];
         }
         
         return view('resume.public', $data);
@@ -166,16 +152,21 @@ class ResumeController extends Controller
         return implode(', ', $parts);
     }
 
-    // Edit view (for authenticated users)
+    // Edit view (for authenticated users - only their own resume)
     public function edit()
     {
-        $data = $this->getResumeData();
+        $userId = Auth::id();
+        $data = $this->getResumeData($userId);
+        $data['userId'] = $userId;
+        
         return view('resume.edit', $data);
     }
 
-    // Update resume (for authenticated users)
+    // Update resume (for authenticated users - only their own resume)
     public function update(Request $request)
     {
+        $userId = Auth::id();
+        
         $validated = $request->validate([
             'name' => 'required|string|max:100',
             'nickname' => 'required|string|max:50',
@@ -276,6 +267,7 @@ class ResumeController extends Controller
 
         // Prepare data for database
         $resumeData = [
+            'user_id' => $userId,
             'full_name' => $request->name,
             'nickname' => $request->nickname,
             'title' => $request->title,
@@ -290,18 +282,19 @@ class ResumeController extends Controller
             'email' => $request->email,
             'phones' => json_encode($phones),
             'address' => json_encode($request->address),
+            'updated_at' => now(),
         ];
 
-        // Check if resume exists
-        $resumeExists = DB::table('resume')->where('id', 1)->exists();
+        // Check if resume exists for this user
+        $resumeExists = DB::table('resume')->where('user_id', $userId)->exists();
 
         if ($resumeExists) {
-            DB::table('resume')->where('id', 1)->update($resumeData);
+            DB::table('resume')->where('user_id', $userId)->update($resumeData);
         } else {
-            $resumeData['id'] = 1;
+            $resumeData['created_at'] = now();
             DB::table('resume')->insert($resumeData);
         }
 
-        return redirect()->route('resume.edit')->with('success', 'Resume updated successfully! All changes have been saved.');
+        return redirect()->route('resume.edit')->with('success', 'Resume updated successfully! Your changes are now visible on the public page.');
     }
 }
