@@ -11,7 +11,7 @@
   <section class='header'>
     <div class='name-bubble'>
       <img src='{{ asset('assets/logo.png') }}' alt='Logo' class='logo-icon'>
-      {{ $nickname ?: 'Resume' }} Vael
+      {{ $name ?: 'Resume' }}
     </div>
     
     <div class='auth-buttons'>
