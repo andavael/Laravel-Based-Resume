@@ -1,39 +1,37 @@
-services:
-  - type: web
-    name: laravel-resume-app
-    env: php
-    plan: free
-    buildCommand: |
-      echo "Installing Composer dependencies with memory limit fix..."
-      export COMPOSER_MEMORY_LIMIT=-1
-      composer clear-cache
-      composer install --no-dev --optimize-autoloader
-      echo "Generating APP_KEY if missing..."
-      php artisan key:generate || true
-      echo "Running Laravel migrations and caching configs..."
-      php artisan migrate --force || true
-      php artisan config:clear
-      php artisan config:cache
-      php artisan route:cache
-      php artisan view:cache
-    startCommand: php artisan serve --host=0.0.0.0 --port=$PORT
-    envVars:
-      - key: APP_ENV
-        value: production
-      - key: APP_DEBUG
-        value: false
-      - key: APP_KEY
-        generateValue: true
-      - key: DB_CONNECTION
-        value: pgsql
-      - key: SESSION_DRIVER
-        value: database
-      - key: CACHE_DRIVER
-        value: database
-      - key: PHP_VERSION
-        value: 8.2
+#!/bin/bash
+set -e
 
-databases:
-  - name: laravel-db
-    databaseName: laravel_resume
-    user: laravel_user
+PORT=${PORT:-10000}
+echo "Configuring Apache to listen on port $PORT..."
+sed -i "s/Listen 80/Listen $PORT/g" /etc/apache2/ports.conf
+sed -i "s/:80/:$PORT/g" /etc/apache2/sites-available/000-default.conf
+
+# Set permissions
+chown -R www-data:www-data /var/www/html
+chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Ensure .env exists
+if [ ! -f /var/www/html/.env ]; then
+    cp /var/www/html/.env.example /var/www/html/.env
+fi
+
+# ✅ Install Composer dependencies BEFORE running any artisan commands
+if [ ! -d /var/www/html/vendor ]; then
+    echo "Installing Composer dependencies..."
+    composer install --optimize-autoloader --no-dev
+fi
+
+# Generate APP_KEY if missing
+if ! grep -q "APP_KEY=base64:" /var/www/html/.env; then
+    php /var/www/html/artisan key:generate
+fi
+
+# Run Laravel commands
+php /var/www/html/artisan migrate --force || true
+php /var/www/html/artisan config:clear
+php /var/www/html/artisan config:cache
+php /var/www/html/artisan route:cache
+php /var/www/html/artisan view:cache
+
+# Start Apache
+exec apache2-foreground
