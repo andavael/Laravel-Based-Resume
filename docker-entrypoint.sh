@@ -21,11 +21,6 @@ if [ ! -d /var/www/html/vendor ]; then
     composer install --optimize-autoloader --no-dev
 fi
 
-# Generate APP_KEY if missing
-if ! grep -q "APP_KEY=base64:" /var/www/html/.env; then
-    php /var/www/html/artisan key:generate
-fi
-
 # Run Laravel commands
 php /var/www/html/artisan migrate --force || true
 php /var/www/html/artisan config:clear
