@@ -10,10 +10,8 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     zip \
     unzip \
-    libpq-dev
-
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+    libpq-dev \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo_pgsql pgsql mbstring exif pcntl bcmath gd
@@ -24,15 +22,19 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy application files
+# Copy composer files first to leverage Docker cache
+COPY composer.json composer.lock ./
+
+# Clear Composer cache and install dependencies safely
+RUN composer clear-cache && \
+    php -d memory_limit=-1 /usr/bin/composer install --optimize-autoloader --no-dev --prefer-dist
+
+# Copy the rest of the application files
 COPY . /var/www/html
 
-# Install dependencies
-RUN composer install --optimize-autoloader --no-dev
-
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+# Set permissions for Laravel storage and cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
@@ -47,11 +49,11 @@ RUN echo '<Directory /var/www/html/public>\n\
     Require all granted\n\
 </Directory>' >> /etc/apache2/apache2.conf
 
-# Copy entrypoint script
+# Copy entrypoint script and make it executable
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# Expose port 80
+# Expose port 10000
 EXPOSE 10000
 
 # Use entrypoint
