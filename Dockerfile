@@ -22,15 +22,27 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy composer files first to leverage Docker cache
+# --- Copy composer files first for caching ---
 COPY composer.json composer.lock ./
 
-# Clear Composer cache and install dependencies safely
-RUN composer clear-cache && \
-    php -d memory_limit=-1 /usr/bin/composer install --optimize-autoloader --no-dev --prefer-dist
+# Create a directory for cached vendor
+RUN mkdir -p /var/www/html/vendor-cache
 
-# Copy the rest of the application files
+# --- Install dependencies with vendor cache ---
+RUN composer clear-cache && \
+    php -d memory_limit=-1 /usr/bin/composer install \
+        --optimize-autoloader --no-dev --prefer-dist --no-scripts \
+        --vendor-dir=/var/www/html/vendor-cache
+
+# --- Copy application files ---
 COPY . /var/www/html
+
+# Symlink vendor-cache to actual vendor directory
+RUN rm -rf /var/www/html/vendor && \
+    ln -s /var/www/html/vendor-cache /var/www/html/vendor
+
+# Run Laravel package discovery now that artisan exists
+RUN php artisan package:discover --ansi
 
 # Set permissions for Laravel storage and cache
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
